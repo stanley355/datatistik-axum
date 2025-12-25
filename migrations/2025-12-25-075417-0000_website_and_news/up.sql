@@ -1,0 +1,28 @@
+-- Your SQL goes here
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TYPE website_category AS ENUM ('GOVERNMENT', 'STOCK_EXCHANGE', 'STATISTICS');
+
+CREATE TABLE websites (
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    created_at TIMESTAMP NOT NULL DEFAULT NOW (),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW (),
+    code VARCHAR(255) NOT NULL UNIQUE,
+    category website_category NOT NULL,
+    url VARCHAR NOT NULL,
+    name VARCHAR NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE news (
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    website_code VARCHAR(255) NOT NULL REFERENCES websites(code) ON UPDATE CASCADE,
+    category website_category NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW (),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW (),
+    published_at TIMESTAMP DEFAULT NOW (),
+    image_url VARCHAR,
+    title VARCHAR NOT NULL,
+    content TEXT NOT NULL
+);
