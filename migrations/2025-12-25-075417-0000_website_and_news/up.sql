@@ -27,5 +27,6 @@ CREATE TABLE news (
     title VARCHAR NOT NULL,
     content TEXT NOT NULL,
     seo_title VARCHAR,
-    seo_description TEXT
+    seo_description TEXT,
+    is_headline BOOLEAN NOT NULL DEFAULT FALSE
 );

@@ -24,6 +24,7 @@ diesel::table! {
         content -> Text,
         seo_title -> Nullable<Varchar>,
         seo_description -> Nullable<Text>,
+        is_headline -> Bool,
     }
 }
 
