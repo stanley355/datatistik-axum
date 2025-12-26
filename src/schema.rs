@@ -17,7 +17,7 @@ diesel::table! {
         category -> WebsiteCategory,
         created_at -> Timestamp,
         updated_at -> Timestamp,
-        published_at -> Nullable<Timestamp>,
+        published_at -> Timestamp,
         slug -> Varchar,
         image_url -> Nullable<Varchar>,
         title -> Varchar,
