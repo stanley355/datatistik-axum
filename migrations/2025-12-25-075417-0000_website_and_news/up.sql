@@ -22,7 +22,10 @@ CREATE TABLE news (
     created_at TIMESTAMP NOT NULL DEFAULT NOW (),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW (),
     published_at TIMESTAMP DEFAULT NOW (),
+    slug VARCHAR NOT NULL,
     image_url VARCHAR,
     title VARCHAR NOT NULL,
-    content TEXT NOT NULL
+    content TEXT NOT NULL,
+    seo_title VARCHAR,
+    seo_description TEXT
 );

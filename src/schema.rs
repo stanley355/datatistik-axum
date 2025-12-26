@@ -18,9 +18,12 @@ diesel::table! {
         created_at -> Timestamp,
         updated_at -> Timestamp,
         published_at -> Nullable<Timestamp>,
+        slug -> Varchar,
         image_url -> Nullable<Varchar>,
         title -> Varchar,
         content -> Text,
+        seo_title -> Nullable<Varchar>,
+        seo_description -> Nullable<Text>,
     }
 }
 
