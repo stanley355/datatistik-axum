@@ -2,7 +2,7 @@
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TYPE website_category AS ENUM ('GOVERNMENT', 'ECONOMY', 'STATISTICS');
+CREATE TYPE website_category AS ENUM ('GOVERNMENT', 'ECONOMY', 'STATISTICS', 'TOURISM');
 
 CREATE TABLE websites (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
