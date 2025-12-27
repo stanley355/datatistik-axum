@@ -1,9 +1,12 @@
 mod db;
 mod envs;
+mod news;
 mod schema;
 mod websites;
 
-use axum::{Router, routing::get};
+use axum::Router;
+
+use crate::news::news_routes;
 
 #[tokio::main]
 async fn main() {
@@ -12,9 +15,7 @@ async fn main() {
     let pool = db::build_db_pool().await;
 
     // build our application with a single route
-    let app = Router::new()
-        .route("/", get(|| async { "Hello, World!" }))
-        .with_state(pool);
+    let app = Router::new().nest("/news", news_routes()).with_state(pool);
 
     // run our app with hyper, listening globally on port 8000
     let host_address = envs::Envs::host_address();
