@@ -1,5 +1,7 @@
 mod db;
 mod envs;
+mod schema;
+mod websites;
 
 use axum::{Router, routing::get};
 
