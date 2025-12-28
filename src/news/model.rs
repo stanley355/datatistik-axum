@@ -2,7 +2,7 @@ use diesel::{ExpressionMethods, QueryDsl, QueryResult, Queryable, Selectable};
 use diesel_async::RunQueryDsl;
 use serde::Serialize;
 
-use crate::db::DbPool;
+use crate::db::{DbPool, DbPoolExt};
 use crate::schema;
 use crate::websites::WebsiteCategory;
 
@@ -25,15 +25,14 @@ pub struct News {
     is_headline: bool,
 }
 
+impl DbPoolExt for News {}
+
 impl News {
     pub async fn find(pool: &DbPool) -> QueryResult<Vec<News>> {
         let mut conn = match pool.get().await {
             Ok(connection) => connection,
             Err(e) => {
-                return Err(diesel::result::Error::DatabaseError(
-                    diesel::result::DatabaseErrorKind::Unknown,
-                    Box::new(e.to_string()),
-                ));
+                return Err(Self::deadpool_to_diesel_error(e));
             }
         };
 

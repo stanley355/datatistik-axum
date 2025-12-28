@@ -8,7 +8,7 @@ async = "0.0.0"
 axum = "0.8.8"
 chrono = {version = "0.4.42", features = ["serde"]}
 diesel = { version = "2.3.5", features = ["chrono", "postgres", "uuid", "serde_json"] }
-diesel-async = { version = "0.7.4", features = ["postgres", "bb8", "deadpool"] }
+diesel-async = { version = "0.7.4", features = ["postgres", "deadpool"] }
 dotenvy = "0.15.7"
 serde = {version = "1.0.228", features = ["derive"]}
 serde_json = "1.0.147"
