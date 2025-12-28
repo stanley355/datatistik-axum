@@ -3,6 +3,7 @@ use diesel_async::RunQueryDsl;
 use serde::Serialize;
 
 use crate::db::{DbPool, DbPoolExt};
+use crate::news::controller::FindManyNewsQuery;
 use crate::schema;
 use crate::websites::WebsiteCategory;
 
@@ -28,17 +29,21 @@ pub struct News {
 impl DbPoolExt for News {}
 
 impl News {
-    pub async fn find(pool: &DbPool) -> QueryResult<Vec<News>> {
+    pub async fn find_many(pool: &DbPool, query: &FindManyNewsQuery) -> QueryResult<Vec<News>> {
         let mut conn = match pool.get().await {
             Ok(connection) => connection,
             Err(e) => {
                 return Err(Self::deadpool_to_diesel_error(e));
             }
         };
-
-        schema::news::table
+        let mut news_sql_query = schema::news::table
             .order_by(schema::news::published_at.desc())
-            .get_results(&mut conn)
-            .await
+            .into_boxed();
+
+        if let Some(is_headline) = query.is_headline {
+            news_sql_query = news_sql_query.filter(schema::news::is_headline.eq(is_headline));
+        }
+
+        news_sql_query.get_results(&mut conn).await
     }
 }
