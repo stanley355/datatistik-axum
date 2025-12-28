@@ -7,7 +7,9 @@ use serde::Deserialize;
 
 #[derive(Deserialize, Default, Debug)]
 pub(super) struct FindManyNewsQuery {
-    pub is_headline: Option<bool>,
+    pub(super) is_headline: Option<bool>,
+    pub(super) page: Option<u32>,
+    pub(super) per_page: Option<u32>,
 }
 
 pub(super) async fn find_many_news(

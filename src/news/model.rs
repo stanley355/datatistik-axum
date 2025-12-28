@@ -8,7 +8,7 @@ use crate::schema;
 use crate::websites::WebsiteCategory;
 
 #[derive(Debug, Queryable, Selectable, Serialize)]
-#[diesel(table_name = crate::schema::news)]
+#[diesel(table_name = schema::news)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct News {
     id: uuid::Uuid,
@@ -36,14 +36,25 @@ impl News {
                 return Err(Self::deadpool_to_diesel_error(e));
             }
         };
+
         let mut news_sql_query = schema::news::table
             .order_by(schema::news::published_at.desc())
             .into_boxed();
 
-        if let Some(is_headline) = query.is_headline {
+        if let Some(is_headline) = &query.is_headline {
             news_sql_query = news_sql_query.filter(schema::news::is_headline.eq(is_headline));
         }
 
-        news_sql_query.get_results(&mut conn).await
+        let limit = match &query.per_page {
+            Some(limit) => limit.to_owned() as i64,
+            None => 10 as i64,
+        };
+
+        if let Some(page) = &query.page {
+            let offset = (page - 1) * limit as u32;
+            news_sql_query = news_sql_query.offset(offset as i64).limit(limit);
+        }
+
+        news_sql_query.limit(limit).get_results(&mut conn).await
     }
 }
