@@ -1,4 +1,3 @@
-use axum::http::StatusCode;
 use diesel::{ExpressionMethods, QueryDsl, QueryResult, Queryable, Selectable};
 use diesel_async::RunQueryDsl;
 use serde::Serialize;
@@ -6,13 +5,6 @@ use serde::Serialize;
 use crate::db::DbPool;
 use crate::schema;
 use crate::websites::WebsiteCategory;
-
-fn internal_error<E>(err: E) -> (StatusCode, String)
-where
-    E: std::error::Error,
-{
-    (StatusCode::INTERNAL_SERVER_ERROR, err.to_string())
-}
 
 #[derive(Debug, Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::news)]
@@ -35,7 +27,16 @@ pub struct News {
 
 impl News {
     pub async fn find(pool: &DbPool) -> QueryResult<Vec<News>> {
-        let mut conn = pool.get().await.map_err(internal_error).unwrap();
+        let mut conn = match pool.get().await {
+            Ok(connection) => connection,
+            Err(e) => {
+                return Err(diesel::result::Error::DatabaseError(
+                    diesel::result::DatabaseErrorKind::Unknown,
+                    Box::new(e.to_string()),
+                ));
+            }
+        };
+
         schema::news::table
             .order_by(schema::news::published_at.desc())
             .get_results(&mut conn)
