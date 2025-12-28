@@ -1,5 +1,6 @@
 mod db;
 mod envs;
+mod middlewares;
 mod news;
 mod schema;
 mod websites;

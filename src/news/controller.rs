@@ -1,12 +1,14 @@
-use axum::response::Json;
+use crate::middlewares::{AxumResponse, JsonResponse};
+use crate::{db::DbPool, news::model::News};
 use axum::{extract::State, http::StatusCode};
 
-use crate::{db::DbPool, news::model::News};
-pub(super) async fn find_news(
-    State(pool): State<DbPool>,
-) -> Result<Json<Vec<News>>, (StatusCode, String)> {
+pub(super) async fn find_news(State(pool): State<DbPool>) -> AxumResponse<Vec<News>> {
     match News::find(&pool).await {
-        Ok(news) => Ok(Json(news)),
-        Err(err) => Ok(Json(vec![])),
+        Ok(news) => JsonResponse::send(StatusCode::OK, Some(news), None),
+        Err(err) => JsonResponse::send(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            None,
+            Some(err.to_string()),
+        ),
     }
 }

@@ -1,5 +1,4 @@
 use axum::http::StatusCode;
-
 use diesel::{ExpressionMethods, QueryDsl, QueryResult, Queryable, Selectable};
 use diesel_async::RunQueryDsl;
 use serde::Serialize;
@@ -15,7 +14,6 @@ where
     (StatusCode::INTERNAL_SERVER_ERROR, err.to_string())
 }
 
-#[allow(unused)]
 #[derive(Debug, Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::news)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
@@ -26,9 +24,9 @@ pub struct News {
     created_at: chrono::NaiveDateTime,
     updated_at: chrono::NaiveDateTime,
     published_at: chrono::NaiveDateTime,
-    pub slug: String,
+    slug: String,
     image_url: Option<String>,
-    pub title: String,
+    title: String,
     content: String,
     seo_title: Option<String>,
     seo_description: Option<String>,
@@ -38,6 +36,9 @@ pub struct News {
 impl News {
     pub async fn find(pool: &DbPool) -> QueryResult<Vec<News>> {
         let mut conn = pool.get().await.map_err(internal_error).unwrap();
-        schema::news::table.get_results(&mut conn).await
+        schema::news::table
+            .order_by(schema::news::published_at.desc())
+            .get_results(&mut conn)
+            .await
     }
 }
