@@ -46,15 +46,18 @@ impl News {
         }
 
         let limit = match &query.per_page {
-            Some(limit) => limit.to_owned() as i64,
-            None => 10 as i64,
+            Some(limit) => limit.to_owned(),
+            None => 10,
         };
 
         if let Some(page) = &query.page {
-            let offset = (page - 1) * limit as u32;
-            news_sql_query = news_sql_query.offset(offset as i64).limit(limit);
+            let offset = (page - 1) * limit;
+            news_sql_query = news_sql_query.offset(offset as i64).limit(limit as i64);
         }
 
-        news_sql_query.limit(limit).get_results(&mut conn).await
+        news_sql_query
+            .limit(limit as i64)
+            .get_results(&mut conn)
+            .await
     }
 }

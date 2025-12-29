@@ -8,6 +8,7 @@ use std::io::Write;
 
 #[derive(Debug, AsExpression, Deserialize, Serialize, Clone, FromSqlRow)]
 #[diesel(sql_type = sql_types::WebsiteCategory)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum WebsiteCategory {
     Government,
     Economy,
