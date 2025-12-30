@@ -32,3 +32,44 @@ impl<T: Serialize> JsonResponse<T> {
         (status, Json(response))
     }
 }
+
+#[derive(Debug, Serialize)]
+pub struct DataPagination<T: Serialize> {
+    data: Option<T>,
+    pagination: Pagination,
+}
+
+impl<T: Serialize> DataPagination<T> {
+    pub fn new(data: Option<T>, pagination: Pagination) -> Self {
+        Self { data, pagination }
+    }
+}
+
+pub const DEFAULT_PER_PAGE: u32 = 10;
+
+#[derive(Debug, Serialize)]
+pub struct Pagination {
+    page: u32,
+    per_page: u32,
+    total_pages: u32,
+    total: u32,
+}
+
+impl Pagination {
+    pub fn new(page: Option<u32>, per_page: Option<u32>, total_pages: u32, total: u32) -> Self {
+        let current_page = match page {
+            Some(p) => p,
+            None => 1,
+        };
+        let current_per_page = match per_page {
+            Some(p) => p,
+            None => DEFAULT_PER_PAGE,
+        };
+        Self {
+            page: current_page,
+            per_page: current_per_page,
+            total_pages,
+            total,
+        }
+    }
+}
