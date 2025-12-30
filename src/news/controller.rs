@@ -1,6 +1,4 @@
-use crate::middlewares::{
-    AxumResponse, DEFAULT_PER_PAGE, DataPagination, JsonResponse, Pagination,
-};
+use crate::middlewares::{AxumResponse, DataPagination, JsonResponse, Pagination};
 use crate::websites::WebsiteCategory;
 use crate::{db::DbPool, news::model::News};
 
