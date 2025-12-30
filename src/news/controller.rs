@@ -43,10 +43,7 @@ pub(super) async fn find_many_news(
         }
     };
 
-    let total_pages =
-        (count as f32 / query.per_page.unwrap_or(DEFAULT_PER_PAGE) as f32).ceil() as u32;
-
-    let pagination = Pagination::new(query.page, query.per_page, total_pages, count as u32);
+    let pagination = Pagination::new(query.page, query.per_page, count as u32);
     let data_pagination = DataPagination::new(Some(news), pagination);
     JsonResponse::send(StatusCode::OK, Some(data_pagination), None)
 }

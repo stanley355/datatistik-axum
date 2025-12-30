@@ -56,7 +56,7 @@ pub struct Pagination {
 }
 
 impl Pagination {
-    pub fn new(page: Option<u32>, per_page: Option<u32>, total_pages: u32, total: u32) -> Self {
+    pub fn new(page: Option<u32>, per_page: Option<u32>, total: u32) -> Self {
         let current_page = match page {
             Some(p) => p,
             None => 1,
@@ -65,6 +65,8 @@ impl Pagination {
             Some(p) => p,
             None => DEFAULT_PER_PAGE,
         };
+
+        let total_pages = (total as f32 / current_per_page as f32).ceil() as u32;
         Self {
             page: current_page,
             per_page: current_per_page,
