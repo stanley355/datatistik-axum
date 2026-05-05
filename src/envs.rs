@@ -4,6 +4,7 @@ impl Envs {
     const HOST_ADDRESS: &str = "HOST_ADDRESS";
     const DATABASE_URL: &str = "DATABASE_URL";
     const APP_ENV: &str = "APP_ENV";
+    const TRUSTED_DOMAINS: &str = "TRUSTED_DOMAINS";
 
     pub fn host_address() -> String {
         let expect = format!("{} must be set", Self::HOST_ADDRESS);
@@ -20,6 +21,11 @@ impl Envs {
     }
 
     pub fn app_env() -> String {
+        let expect = format!("{} must be set", Self::APP_ENV);
+        std::env::var(Self::APP_ENV).expect(&expect).to_string()
+    }
+
+    pub fn trusted_domains() -> String {
         let expect = format!("{} must be set", Self::APP_ENV);
         std::env::var(Self::APP_ENV).expect(&expect).to_string()
     }
