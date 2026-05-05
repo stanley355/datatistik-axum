@@ -1,6 +1,8 @@
 mod db;
+mod enumerates;
 mod envs;
 mod middlewares;
+mod products;
 mod schema;
 
 use axum::{Router, http::HeaderValue};
@@ -22,7 +24,10 @@ async fn main() {
     let pool = db::build_db_pool().await;
 
     // build our application with a single route
-    let app = Router::new().with_state(pool).layer(cors);
+    let app = Router::new()
+        .nest("/products", products::routes())
+        .with_state(pool)
+        .layer(cors);
 
     // run our app with hyper, listening globally on port 8000
     let host_address = envs::Envs::host_address();
