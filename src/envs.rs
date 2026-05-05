@@ -26,7 +26,7 @@ impl Envs {
     }
 
     pub fn trusted_domains() -> String {
-        let expect = format!("{} must be set", Self::APP_ENV);
+        let expect = format!("{} must be set", Self::TRUSTED_DOMAINS);
         std::env::var(Self::APP_ENV).expect(&expect).to_string()
     }
 }
