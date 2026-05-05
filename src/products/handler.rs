@@ -7,8 +7,15 @@ use axum::{Router, extract::State, http::StatusCode, routing::get};
 pub(super) async fn find_products(
     State(pool): State<DbPool>,
 ) -> AxumResponse<DataPagination<Vec<Product>>> {
-    let news = match Product::find(&pool).await {
-        Ok(news) => news,
+    let products = match Product::find(&pool).await {
+        Ok(prod) => prod
+            .into_iter()
+            .map(|mut p| {
+                let price = p.price / 100;
+                p.price = price;
+                return p;
+            })
+            .collect(),
         Err(err) => {
             return JsonResponse::send(
                 StatusCode::INTERNAL_SERVER_ERROR,
@@ -30,7 +37,7 @@ pub(super) async fn find_products(
     };
 
     let pagination = Pagination::new(Some(1), Some(100), count as u32);
-    let data_pagination = DataPagination::new(Some(news), pagination);
+    let data_pagination = DataPagination::new(Some(products), pagination);
     JsonResponse::send(StatusCode::OK, Some(data_pagination), None)
 }
 

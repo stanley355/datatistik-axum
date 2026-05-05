@@ -17,7 +17,7 @@ pub(super) struct Product {
     name: String,
     description: String,
     currency: Currency,
-    price: i64,
+    pub price: i64,
     unit: Option<String>,
     images: serde_json::Value,
     metadata: serde_json::Value,
