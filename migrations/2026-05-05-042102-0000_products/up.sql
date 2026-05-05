@@ -8,6 +8,7 @@ CREATE TABLE products (
     id uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
     created_at TIMESTAMP NOT NULL DEFAULT NOW (),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW (),
+    slug VARCHAR UNIQUE NOT NULL,
     name VARCHAR NOT NULL,
     description VARCHAR NOT NULL,
     currency CURRENCY NOT NULL,

@@ -14,6 +14,7 @@ pub(super) struct Product {
     id: uuid::Uuid,
     created_at: chrono::NaiveDateTime,
     updated_at: chrono::NaiveDateTime,
+    slug: String,
     name: String,
     description: String,
     currency: Currency,

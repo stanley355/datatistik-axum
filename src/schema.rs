@@ -32,6 +32,7 @@ diesel::table! {
         id -> Uuid,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        slug -> Varchar,
         name -> Varchar,
         description -> Varchar,
         currency -> Currency,
