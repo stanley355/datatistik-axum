@@ -74,6 +74,16 @@ diesel::table! {
 }
 
 diesel::table! {
+    user_search (id) {
+        id -> Uuid,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+        keyword -> Varchar,
+        user_id -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
     verification (id) {
         id -> Text,
         identifier -> Text,
@@ -86,5 +96,13 @@ diesel::table! {
 
 diesel::joinable!(account -> user (userId));
 diesel::joinable!(session -> user (userId));
+diesel::joinable!(user_search -> user (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(account, products, session, user, verification,);
+diesel::allow_tables_to_appear_in_same_query!(
+    account,
+    products,
+    session,
+    user,
+    user_search,
+    verification,
+);

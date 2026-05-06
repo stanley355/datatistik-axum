@@ -27,7 +27,7 @@ pub(super) struct Product {
 impl DbPoolExt for Product {}
 
 impl Product {
-    pub async fn find(pool: &DbPool) -> QueryResult<Vec<Product>> {
+    pub(super) async fn find(pool: &DbPool) -> QueryResult<Vec<Product>> {
         let mut conn = match pool.get().await {
             Ok(connection) => connection,
             Err(e) => {
@@ -41,7 +41,7 @@ impl Product {
             .await
     }
 
-    pub async fn count(pool: &DbPool) -> QueryResult<i64> {
+    pub(super) async fn count(pool: &DbPool) -> QueryResult<i64> {
         let mut conn = match pool.get().await {
             Ok(connection) => connection,
             Err(e) => {
