@@ -1,17 +1,11 @@
 // @generated automatically by Diesel CLI.
 
-pub mod sql_types {
-    #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
-    #[diesel(postgres_type(name = "currency"))]
-    pub struct Currency;
-}
-
 diesel::table! {
-    account (id) {
-        id -> Text,
+    accounts (id) {
+        id -> Uuid,
         accountId -> Text,
         providerId -> Text,
-        userId -> Text,
+        userId -> Uuid,
         accessToken -> Nullable<Text>,
         refreshToken -> Nullable<Text>,
         idToken -> Nullable<Text>,
@@ -25,41 +19,22 @@ diesel::table! {
 }
 
 diesel::table! {
-    use diesel::sql_types::*;
-    use super::sql_types::Currency;
-
-    products (id) {
+    sessions (id) {
         id -> Uuid,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-        slug -> Varchar,
-        name -> Varchar,
-        description -> Varchar,
-        currency -> Currency,
-        price -> Int8,
-        unit -> Nullable<Varchar>,
-        images -> Jsonb,
-        metadata -> Jsonb,
-    }
-}
-
-diesel::table! {
-    session (id) {
-        id -> Text,
         expiresAt -> Timestamptz,
         token -> Text,
         createdAt -> Timestamptz,
         updatedAt -> Timestamptz,
         ipAddress -> Nullable<Text>,
         userAgent -> Nullable<Text>,
-        userId -> Text,
+        userId -> Uuid,
         impersonatedBy -> Nullable<Text>,
     }
 }
 
 diesel::table! {
-    user (id) {
-        id -> Text,
+    users (id) {
+        id -> Uuid,
         name -> Text,
         email -> Text,
         emailVerified -> Bool,
@@ -74,18 +49,18 @@ diesel::table! {
 }
 
 diesel::table! {
-    user_search (id) {
+    users_search (id) {
         id -> Uuid,
         created_at -> Timestamp,
         updated_at -> Timestamp,
         keyword -> Varchar,
-        user_id -> Nullable<Text>,
+        user_id -> Nullable<Uuid>,
     }
 }
 
 diesel::table! {
-    verification (id) {
-        id -> Text,
+    verifications (id) {
+        id -> Uuid,
         identifier -> Text,
         value -> Text,
         expiresAt -> Timestamptz,
@@ -94,15 +69,14 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(account -> user (userId));
-diesel::joinable!(session -> user (userId));
-diesel::joinable!(user_search -> user (user_id));
+diesel::joinable!(accounts -> users (userId));
+diesel::joinable!(sessions -> users (userId));
+diesel::joinable!(users_search -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    account,
-    products,
-    session,
-    user,
-    user_search,
-    verification,
+    accounts,
+    sessions,
+    users,
+    users_search,
+    verifications,
 );

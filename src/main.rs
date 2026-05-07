@@ -2,7 +2,6 @@ mod db;
 mod enumerates;
 mod envs;
 mod middlewares;
-mod products;
 mod schema;
 mod user_search;
 
@@ -26,7 +25,6 @@ async fn main() {
 
     // build our application with a single route
     let app = Router::new()
-        .nest("/products", products::routes())
         .nest("/user-search", user_search::routes())
         .with_state(pool)
         .layer(cors);

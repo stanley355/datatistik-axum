@@ -10,10 +10,10 @@ use crate::{
 };
 
 #[derive(Deserialize, Insertable)]
-#[diesel(table_name = schema::user_search)]
+#[diesel(table_name = schema::users_search)]
 pub(super) struct CreateUserSearchSchema {
     keyword: String,
-    user_id: Option<String>,
+    user_id: Option<uuid::Uuid>,
 }
 
 async fn create_user_search(

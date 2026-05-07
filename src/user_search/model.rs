@@ -15,7 +15,7 @@ pub(super) struct UserSearch {
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,
     pub keyword: String,
-    pub user_id: Option<String>,
+    pub user_id: Option<uuid::Uuid>,
 }
 
 impl DbPoolExt for UserSearch {}
@@ -30,7 +30,7 @@ impl UserSearch {
                 return Err(Self::deadpool_to_diesel_error(e));
             }
         };
-        diesel::insert_into(schema::user_search::table)
+        diesel::insert_into(schema::users_search::table)
             .values(payload)
             .get_result(&mut conn)
             .await
