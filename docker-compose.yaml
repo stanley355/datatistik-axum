@@ -1,0 +1,14 @@
+services:
+  delifunds-axum:
+    container_name: delifunds-axum
+    image: 355355355/delifunds-axum
+    restart: on-failure
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    networks:
+      - docker-delifunds
+networks:
+  docker-delifunds:
+    driver: bridge
