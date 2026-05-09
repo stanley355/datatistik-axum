@@ -7,10 +7,6 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Cache dependencies
-COPY Cargo.toml Cargo.lock ./
-RUN cargo build --release
-
 # Build the actual app
 COPY . .
 RUN cargo build --release --all-features
