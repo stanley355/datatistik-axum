@@ -266,24 +266,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "datatistik-axum"
-version = "0.1.0"
-dependencies = [
- "async",
- "axum",
- "chrono",
- "diesel",
- "diesel-async",
- "dotenvy",
- "serde",
- "serde_json",
- "tokio",
- "tower-http",
- "uuid",
- "validator",
-]
-
-[[package]]
 name = "deadpool"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -300,6 +282,24 @@ name = "deadpool-runtime"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "092966b41edc516079bdf31ec78a2e0588d1d0c08f78b91d8307215928642b2b"
+
+[[package]]
+name = "delifunds-axum"
+version = "0.1.0"
+dependencies = [
+ "async",
+ "axum",
+ "chrono",
+ "diesel",
+ "diesel-async",
+ "dotenvy",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tower-http",
+ "uuid",
+ "validator",
+]
 
 [[package]]
 name = "diesel"

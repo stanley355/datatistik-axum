@@ -1,5 +1,5 @@
 [package]
-name = "datatistik-axum"
+name = "delifunds-axum"
 version = "0.1.0"
 edition = "2024"
 

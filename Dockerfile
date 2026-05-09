@@ -25,7 +25,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 # 1. Copy your app binary
-COPY --from=builder /app/target/release/inception-axum .
+COPY --from=builder /app/target/release/delifunds-axum .
 
 # 2. Copy the diesel binary from the builder's cargo bin
 COPY --from=builder /usr/local/cargo/bin/diesel /usr/local/bin/diesel
