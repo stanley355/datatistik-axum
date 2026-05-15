@@ -17,7 +17,6 @@ async fn main() {
 
     let app_env = envs::Envs::app_env();
     let trusted_domains = envs::Envs::trusted_domains();
-    println!("Trusted: {}", trusted_domains);
     let cors = match app_env.as_str() {
         "production" => CorsLayer::new()
             .allow_origin(trusted_domains.parse::<HeaderValue>().unwrap())

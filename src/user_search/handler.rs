@@ -20,7 +20,6 @@ async fn create_user_search(
     State(pool): State<DbPool>,
     Json(payload): Json<CreateUserSearchSchema>,
 ) -> AxumResponse<UserSearch> {
-    println!("Create user search {:?}", payload);
     match UserSearch::create(&pool, &payload).await {
         Ok(search) => JsonResponse::send(StatusCode::CREATED, Some(search), None),
         Err(err) => JsonResponse::send(
