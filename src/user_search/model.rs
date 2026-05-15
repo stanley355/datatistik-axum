@@ -27,6 +27,7 @@ impl UserSearch {
         let mut conn = match pool.get().await {
             Ok(connection) => connection,
             Err(e) => {
+                println!("Coner: {:?}", e);
                 return Err(Self::deadpool_to_diesel_error(e));
             }
         };
