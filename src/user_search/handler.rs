@@ -9,7 +9,7 @@ use crate::{
     schema,
 };
 
-#[derive(Deserialize, Insertable)]
+#[derive(Deserialize, Insertable, Debug)]
 #[diesel(table_name = schema::users_search)]
 pub(super) struct CreateUserSearchSchema {
     keyword: String,
@@ -20,6 +20,7 @@ async fn create_user_search(
     State(pool): State<DbPool>,
     Json(payload): Json<CreateUserSearchSchema>,
 ) -> AxumResponse<UserSearch> {
+    println!("Create user search {:?}", payload);
     match UserSearch::create(&pool, &payload).await {
         Ok(search) => JsonResponse::send(StatusCode::CREATED, Some(search), None),
         Err(err) => JsonResponse::send(

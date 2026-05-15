@@ -30,6 +30,7 @@ impl UserSearch {
                 return Err(Self::deadpool_to_diesel_error(e));
             }
         };
+        println!("Conn success!");
         diesel::insert_into(schema::users_search::table)
             .values(payload)
             .get_result(&mut conn)
