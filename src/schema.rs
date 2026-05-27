@@ -19,6 +19,21 @@ diesel::table! {
 }
 
 diesel::table! {
+    products (id) {
+        id -> Int4,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+        created_by_id -> Nullable<Uuid>,
+        is_available -> Bool,
+        price -> Int8,
+        titles -> Jsonb,
+        descriptions -> Jsonb,
+        options -> Jsonb,
+        images -> Jsonb,
+    }
+}
+
+diesel::table! {
     sessions (id) {
         id -> Uuid,
         expiresAt -> Timestamptz,
@@ -70,11 +85,13 @@ diesel::table! {
 }
 
 diesel::joinable!(accounts -> users (userId));
+diesel::joinable!(products -> users (created_by_id));
 diesel::joinable!(sessions -> users (userId));
 diesel::joinable!(users_search -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     accounts,
+    products,
     sessions,
     users,
     users_search,
