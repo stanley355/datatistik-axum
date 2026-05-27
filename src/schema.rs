@@ -23,13 +23,13 @@ diesel::table! {
         id -> Int4,
         created_at -> Timestamp,
         updated_at -> Timestamp,
-        created_by_id -> Nullable<Uuid>,
+        created_by_id -> Uuid,
         is_available -> Bool,
         price -> Int8,
         titles -> Jsonb,
         descriptions -> Jsonb,
         options -> Jsonb,
-        images -> Jsonb,
+        images_url -> Jsonb,
     }
 }
 
