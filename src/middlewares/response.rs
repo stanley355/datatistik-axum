@@ -1,7 +1,7 @@
 use axum::{Json, http::StatusCode};
 use serde::Serialize;
 use std::usize;
-use tracing::debug;
+use tracing::error;
 
 pub type AxumResponse<T> = (StatusCode, Json<JsonResponse<T>>);
 
@@ -37,7 +37,7 @@ impl<T: Serialize> JsonResponse<T> {
                 Some(msg) => msg,
                 None => "Unknown error".to_string(),
             };
-            debug!("{:?}", error_message)
+            error!("{:?}", error_message)
         }
 
         let response = Self::new(status.as_u16(), data, new_message);

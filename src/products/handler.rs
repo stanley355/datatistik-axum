@@ -71,22 +71,19 @@ async fn create_product(
         let error_message = format!("Validation failed: {:?}", errors.0);
         return JsonResponse::send(StatusCode::BAD_REQUEST, None, Some(error_message));
     }
-
-    JsonResponse::send(StatusCode::OK, None, None)
-    // let new_product = payload.to_new_product();
-    // match Product::create(&pool, &new_product).await {
-    //     Ok(product) => JsonResponse::send(StatusCode::CREATED, Some(product), None),
-    //     Err(err) =>
-    //     JsonResponse::send(
-    //         StatusCode::INTERNAL_SERVER_ERROR,
-    //         None,
-    //         Some(err.to_string()),
-    //     ),
-    // }
+    let new_product = payload.to_new_product();
+    match Product::create(&pool, &new_product).await {
+        Ok(product) => JsonResponse::send(StatusCode::CREATED, Some(product), None),
+        Err(err) => JsonResponse::send(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            None,
+            Some(err.to_string()),
+        ),
+    }
 }
 
 pub fn routes() -> Router<DbPool> {
     Router::new()
         .route("/", post(create_product))
-        .layer(from_fn(BetterAuth::middleware))
+        .layer(from_fn(BetterAuth::admin_middleware))
 }

@@ -41,7 +41,7 @@ async fn main() {
     );
     tracing_subscriber::fmt()
         .with_env_filter(tracing_filter)
-        .with_max_level(tracing::Level::DEBUG)
+        .with_max_level(tracing::Level::ERROR)
         .init();
 
     let pool = db::build_db_pool().await;
