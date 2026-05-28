@@ -29,7 +29,7 @@ diesel::table! {
         title -> Jsonb,
         description -> Jsonb,
         options -> Jsonb,
-        images_url -> Jsonb,
+        image_urls -> Jsonb,
     }
 }
 

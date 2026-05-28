@@ -27,7 +27,7 @@ pub(super) struct CreateProductSchema {
     options: Option<Vec<ProductOption>>,
 
     #[validate(length(min = 1, message = "At least one image is required"))]
-    images_url: Vec<String>,
+    image_urls: Vec<String>,
 }
 
 impl CreateProductSchema {
@@ -47,7 +47,7 @@ impl CreateProductSchema {
             title: serde_json::to_value(self.title).unwrap_or(default_json_object.clone()),
             description: serde_json::to_value(self.description).unwrap_or(default_json_object),
             options: product_options,
-            images_url: serde_json::to_value(self.images_url).unwrap_or(default_json_array),
+            image_urls: serde_json::to_value(self.image_urls).unwrap_or(default_json_array),
         }
     }
 }
@@ -60,7 +60,7 @@ pub(super) struct NewProduct {
     title: serde_json::Value,
     description: serde_json::Value,
     options: Option<serde_json::Value>,
-    images_url: serde_json::Value,
+    image_urls: serde_json::Value,
 }
 
 async fn create_product(

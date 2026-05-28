@@ -21,7 +21,7 @@ pub(super) struct Product {
     title: serde_json::Value,
     description: serde_json::Value,
     options: serde_json::Value,
-    images_url: serde_json::Value,
+    image_urls: serde_json::Value,
 }
 
 impl DbPoolExt for Product {}

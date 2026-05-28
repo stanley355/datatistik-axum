@@ -9,7 +9,7 @@ CREATE TABLE products (
     title JSONB NOT NULL DEFAULT '{}',
     description JSONB NOT NULL DEFAULT '{}',
     options JSONB NOT NULL DEFAULT '[]',
-    images_url JSONB NOT NULL DEFAULT '[]'
+    image_urls JSONB NOT NULL DEFAULT '[]'
 );
 
 -- Register the table with Diesel's internal trigger helper
