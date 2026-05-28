@@ -1,6 +1,7 @@
 use axum::{Json, http::StatusCode};
 use serde::Serialize;
 use std::usize;
+use tracing::debug;
 
 pub type AxumResponse<T> = (StatusCode, Json<JsonResponse<T>>);
 
@@ -21,13 +22,21 @@ impl<T: Serialize> JsonResponse<T> {
     }
 
     pub fn send(status: StatusCode, data: Option<T>, message: Option<String>) -> AxumResponse<T> {
-        let new_message = match message {
+        let new_message = match message.clone() {
             Some(msg) => msg,
             None => match data {
                 Some(_) => status.to_string(),
                 None => "".to_string(),
             },
         };
+
+        let appropriate_status = [StatusCode::ACCEPTED, StatusCode::CREATED];
+
+        if !appropriate_status.contains(&status) {
+            let error_message = message.unwrap();
+            debug!("{:?}", error_message)
+        }
+
         let response = Self::new(status.as_u16(), data, new_message);
         (status, Json(response))
     }

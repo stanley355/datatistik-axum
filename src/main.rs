@@ -11,6 +11,8 @@ use axum::{
     http::{HeaderValue, Method},
 };
 use tower_http::cors::CorsLayer;
+use tower_http::trace::TraceLayer;
+use tracing::Level;
 
 #[tokio::main]
 async fn main() {
@@ -35,6 +37,14 @@ async fn main() {
         _ => CorsLayer::permissive(),
     };
 
+    let tracing_filter = tracing_subscriber::EnvFilter::new(
+        "tower_http::trace::make_span=debug,tower_http::trace::on_response=debug,tower_http::trace::on_request=debug",
+    );
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_filter)
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
+
     let pool = db::build_db_pool().await;
 
     // build our application with a single route
@@ -42,7 +52,8 @@ async fn main() {
         .nest("/user-search", user_search::routes())
         .nest("/products", products::routes())
         .with_state(pool)
-        .layer(cors);
+        .layer(cors)
+        .layer(TraceLayer::new_for_http());
 
     // run our app with hyper, listening globally on port 8000
     let host_address = envs::Envs::host_address();
