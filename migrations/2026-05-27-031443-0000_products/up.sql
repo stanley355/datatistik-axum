@@ -6,8 +6,8 @@ CREATE TABLE products (
     created_by_id UUID NOT NULL REFERENCES users(id),
     is_available BOOL NOT NULL DEFAULT true,
     price BIGINT NOT NULL,
-    titles JSONB NOT NULL DEFAULT '{}',
-    descriptions JSONB NOT NULL DEFAULT '{}',
+    title JSONB NOT NULL DEFAULT '{}',
+    description JSONB NOT NULL DEFAULT '{}',
     options JSONB NOT NULL DEFAULT '[]',
     images_url JSONB NOT NULL DEFAULT '[]'
 );

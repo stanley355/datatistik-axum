@@ -20,8 +20,8 @@ pub(super) struct CreateProductSchema {
 
     price: i64,
 
-    titles: ProductLocalization,
-    descriptions: ProductLocalization,
+    title: ProductLocalization,
+    description: ProductLocalization,
 
     #[allow(dead_code)]
     options: Option<Vec<ProductOption>>,
@@ -44,8 +44,8 @@ impl CreateProductSchema {
             created_by_id: self.created_by_id,
             // Price should times 100 to handle floating numbers
             price: self.price * 100,
-            titles: serde_json::to_value(self.titles).unwrap_or(default_json_object.clone()),
-            descriptions: serde_json::to_value(self.descriptions).unwrap_or(default_json_object),
+            title: serde_json::to_value(self.title).unwrap_or(default_json_object.clone()),
+            description: serde_json::to_value(self.description).unwrap_or(default_json_object),
             options: product_options,
             images_url: serde_json::to_value(self.images_url).unwrap_or(default_json_array),
         }
@@ -57,8 +57,8 @@ impl CreateProductSchema {
 pub(super) struct NewProduct {
     created_by_id: uuid::Uuid,
     price: i64,
-    titles: serde_json::Value,
-    descriptions: serde_json::Value,
+    title: serde_json::Value,
+    description: serde_json::Value,
     options: Option<serde_json::Value>,
     images_url: serde_json::Value,
 }

@@ -26,8 +26,8 @@ diesel::table! {
         created_by_id -> Uuid,
         is_available -> Bool,
         price -> Int8,
-        titles -> Jsonb,
-        descriptions -> Jsonb,
+        title -> Jsonb,
+        description -> Jsonb,
         options -> Jsonb,
         images_url -> Jsonb,
     }

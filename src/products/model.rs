@@ -18,8 +18,8 @@ pub(super) struct Product {
     pub created_by_id: uuid::Uuid,
     pub is_available: bool,
     price: i64,
-    titles: serde_json::Value,
-    descriptions: serde_json::Value,
+    title: serde_json::Value,
+    description: serde_json::Value,
     options: serde_json::Value,
     images_url: serde_json::Value,
 }
