@@ -1,4 +1,4 @@
-use axum::{Json, Router, extract::State, http::StatusCode, routing::post};
+use axum::{Json, Router, extract::State, http::StatusCode, middleware::from_fn, routing::post};
 use diesel::prelude::Insertable;
 use serde::Deserialize;
 use validator::Validate;
@@ -9,7 +9,7 @@ use super::{
 };
 use crate::{
     db::DbPool,
-    middlewares::{AxumResponse, JsonResponse},
+    middlewares::{AxumResponse, BetterAuth, JsonResponse},
     schema,
 };
 
@@ -72,17 +72,21 @@ async fn create_product(
         return JsonResponse::send(StatusCode::BAD_REQUEST, None, Some(error_message));
     }
 
-    let new_product = payload.to_new_product();
-    match Product::create(&pool, &new_product).await {
-        Ok(product) => JsonResponse::send(StatusCode::CREATED, Some(product), None),
-        Err(err) => JsonResponse::send(
-            StatusCode::INTERNAL_SERVER_ERROR,
-            None,
-            Some(err.to_string()),
-        ),
-    }
+    JsonResponse::send(StatusCode::OK, None, None)
+    // let new_product = payload.to_new_product();
+    // match Product::create(&pool, &new_product).await {
+    //     Ok(product) => JsonResponse::send(StatusCode::CREATED, Some(product), None),
+    //     Err(err) =>
+    //     JsonResponse::send(
+    //         StatusCode::INTERNAL_SERVER_ERROR,
+    //         None,
+    //         Some(err.to_string()),
+    //     ),
+    // }
 }
 
 pub fn routes() -> Router<DbPool> {
-    Router::new().route("/", post(create_product))
+    Router::new()
+        .route("/", post(create_product))
+        .layer(from_fn(BetterAuth::middleware))
 }

@@ -33,7 +33,10 @@ impl<T: Serialize> JsonResponse<T> {
         let appropriate_status = [StatusCode::ACCEPTED, StatusCode::CREATED];
 
         if !appropriate_status.contains(&status) {
-            let error_message = message.unwrap();
+            let error_message = match message {
+                Some(msg) => msg,
+                None => "Unknown error".to_string(),
+            };
             debug!("{:?}", error_message)
         }
 

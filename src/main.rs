@@ -12,7 +12,6 @@ use axum::{
 };
 use tower_http::cors::CorsLayer;
 use tower_http::trace::TraceLayer;
-use tracing::Level;
 
 #[tokio::main]
 async fn main() {
