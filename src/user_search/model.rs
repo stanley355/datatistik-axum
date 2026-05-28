@@ -1,4 +1,4 @@
-use diesel::{ExpressionMethods, QueryDsl, QueryResult, Queryable};
+use diesel::{QueryResult, Queryable};
 use diesel_async::RunQueryDsl;
 use serde::Serialize;
 
@@ -23,7 +23,7 @@ impl UserSearch {
     pub(super) async fn create(
         pool: &DbPool,
         payload: &CreateUserSearchSchema,
-    ) -> QueryResult<UserSearch> {
+    ) -> QueryResult<Self> {
         let mut conn = match pool.get().await {
             Ok(connection) => connection,
             Err(e) => {

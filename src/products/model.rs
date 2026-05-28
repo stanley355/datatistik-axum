@@ -2,7 +2,6 @@ use diesel::{ExpressionMethods, QueryDsl, QueryResult, Queryable};
 use diesel_async::RunQueryDsl;
 use serde::Serialize;
 
-use super::handler::CreateProductSchema;
 use crate::{
     db::{DbPool, DbPoolExt},
     products::handler::NewProduct,
@@ -26,7 +25,7 @@ pub(super) struct Product {
 
 impl DbPoolExt for Product {}
 impl Product {
-    pub(super) async fn create(pool: &DbPool, payload: &NewProduct) -> QueryResult<Product> {
+    pub(super) async fn create(pool: &DbPool, payload: &NewProduct) -> QueryResult<Self> {
         let mut conn = match pool.get().await {
             Ok(connection) => connection,
             Err(e) => {
@@ -37,5 +36,28 @@ impl Product {
             .values(payload)
             .get_result(&mut conn)
             .await
+    }
+
+    pub(super) async fn find(pool: &DbPool) -> QueryResult<Vec<Self>> {
+        let mut conn = match pool.get().await {
+            Ok(connection) => connection,
+            Err(e) => {
+                return Err(Self::deadpool_to_diesel_error(e));
+            }
+        };
+        schema::products::table
+            .order_by(schema::products::created_at.desc())
+            .get_results(&mut conn)
+            .await
+    }
+
+    pub(super) async fn count(pool: &DbPool) -> QueryResult<i64> {
+        let mut conn = match pool.get().await {
+            Ok(connection) => connection,
+            Err(e) => {
+                return Err(Self::deadpool_to_diesel_error(e));
+            }
+        };
+        schema::products::table.count().get_result(&mut conn).await
     }
 }

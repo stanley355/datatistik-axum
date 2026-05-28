@@ -1,4 +1,10 @@
-use axum::{Json, Router, extract::State, http::StatusCode, middleware::from_fn, routing::post};
+use axum::{
+    Json, Router,
+    extract::State,
+    http::StatusCode,
+    middleware::from_fn,
+    routing::{get, post},
+};
 use diesel::prelude::Insertable;
 use serde::Deserialize;
 use validator::Validate;
@@ -9,7 +15,7 @@ use super::{
 };
 use crate::{
     db::DbPool,
-    middlewares::{AxumResponse, BetterAuth, JsonResponse},
+    middlewares::{AxumResponse, BetterAuth, DataPagination, JsonResponse, Pagination},
     schema,
 };
 
@@ -82,8 +88,40 @@ async fn create_product(
     }
 }
 
+async fn find_product(State(pool): State<DbPool>) -> AxumResponse<DataPagination<Vec<Product>>> {
+    let products = match Product::find(&pool).await {
+        Ok(data) => data,
+        Err(err) => {
+            return JsonResponse::send(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                None,
+                Some(err.to_string()),
+            );
+        }
+    };
+
+    let product_count = match Product::count(&pool).await {
+        Ok(data) => data,
+        Err(err) => {
+            return JsonResponse::send(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                None,
+                Some(err.to_string()),
+            );
+        }
+    };
+
+    let pagination = Pagination::new(None, None, product_count as u32);
+    let data_pagination = DataPagination::new(Some(products), pagination);
+    JsonResponse::send(StatusCode::OK, Some(data_pagination), None)
+}
+
 pub fn routes() -> Router<DbPool> {
-    Router::new()
+    let public_routes = Router::new().route("/", get(find_product));
+
+    let protected_routes = Router::new()
         .route("/", post(create_product))
-        .layer(from_fn(BetterAuth::admin_middleware))
+        .layer(from_fn(BetterAuth::admin_middleware));
+
+    public_routes.merge(protected_routes)
 }
