@@ -32,10 +32,14 @@ impl S3 {
         Client::new(&config)
     }
 
-    pub async fn upload_raw_bytes(s3_key: &str) -> Result<PutObjectOutput, S3Error> {
+    pub async fn upload_file(
+        s3_key: &str,
+        body: ByteStream,
+        content_type: &str,
+    ) -> Result<PutObjectOutput, S3Error> {
         // Example: Converting raw text data into an array of bytes
-        let raw_data = b"Hello from Rust! This is uploaded on-the-fly.";
-        let body = ByteStream::from(raw_data.to_vec());
+        // let raw_data = b"Hello from Rust! This is uploaded on-the-fly.";
+        // let body = ByteStream::from(raw_data.to_vec());
 
         let bucket = Envs::s3_bucket();
         let client = Self::get_client().await;
@@ -44,7 +48,7 @@ impl S3 {
             .bucket(bucket)
             .key(s3_key)
             .body(body)
-            .content_type("text/plain")
+            .content_type(content_type)
             .send()
             .await
             .map_err(S3Error::from)
