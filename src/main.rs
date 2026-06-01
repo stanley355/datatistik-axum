@@ -3,6 +3,7 @@ mod enumerates;
 mod envs;
 mod middlewares;
 mod products;
+mod s3;
 mod schema;
 mod user_search;
 

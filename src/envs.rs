@@ -6,6 +6,10 @@ impl Envs {
     const APP_ENV: &str = "APP_ENV";
     const TRUSTED_DOMAINS: &str = "TRUSTED_DOMAINS";
     const BETTER_AUTH_URL: &str = "BETTER_AUTH_URL";
+    const S3_ENDPOINT: &str = "S3_ENDPOINT";
+    const S3_BUCKET: &str = "S3_BUCKET";
+    const S3_ACCESS_KEY: &str = "S3_ACCESS_KEY";
+    const S3_SECRET_KEY: &str = "S3_SECRET_KEY";
 
     pub fn host_address() -> String {
         let expect = format!("{} must be set", Self::HOST_ADDRESS);
@@ -38,5 +42,28 @@ impl Envs {
         std::env::var(Self::BETTER_AUTH_URL)
             .expect(&expect)
             .to_string()
+    }
+
+    pub fn s3_endpoint() -> String {
+        let name = Self::S3_ENDPOINT;
+        let expect = format!("{} must be set", name);
+        std::env::var(name).expect(&expect).to_string()
+    }
+    pub fn s3_bucket() -> String {
+        let name = Self::S3_BUCKET;
+        let expect = format!("{} must be set", name);
+        std::env::var(name).expect(&expect).to_string()
+    }
+
+    pub fn s3_access_key() -> String {
+        let name = Self::S3_ACCESS_KEY;
+        let expect = format!("{} must be set", name);
+        std::env::var(name).expect(&expect).to_string()
+    }
+
+    pub fn s3_secret_key() -> String {
+        let name = Self::S3_SECRET_KEY;
+        let expect = format!("{} must be set", name);
+        std::env::var(name).expect(&expect).to_string()
     }
 }
