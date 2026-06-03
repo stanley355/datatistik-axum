@@ -162,7 +162,7 @@ async fn upload_product_images(
         };
         // Generate a unique S3 Key to prevent file overwrites
         let unique_id = uuid::Uuid::new_v4();
-        let s3_key = format!("products/{}.{}", unique_id, extension);
+        let s3_key = format!("{}.{}", unique_id, extension);
         let bytes = field.bytes().await.unwrap();
         let byte_stream = ByteStream::from(bytes);
         let file_upload = S3::upload_file(&s3_key, byte_stream, &content_type).await;

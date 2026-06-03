@@ -1,6 +1,7 @@
 use aws_config::{BehaviorVersion, Region};
 use aws_sdk_s3::{
     Client, config::Credentials, operation::put_object::PutObjectOutput, primitives::ByteStream,
+    types::ObjectCannedAcl,
 };
 
 use super::s3_error::S3Error;
@@ -37,10 +38,6 @@ impl S3 {
         body: ByteStream,
         content_type: &str,
     ) -> Result<PutObjectOutput, S3Error> {
-        // Example: Converting raw text data into an array of bytes
-        // let raw_data = b"Hello from Rust! This is uploaded on-the-fly.";
-        // let body = ByteStream::from(raw_data.to_vec());
-
         let bucket = Envs::s3_bucket();
         let client = Self::get_client().await;
         client
@@ -49,6 +46,7 @@ impl S3 {
             .key(s3_key)
             .body(body)
             .content_type(content_type)
+            .acl(ObjectCannedAcl::PublicRead)
             .send()
             .await
             .map_err(S3Error::from)
