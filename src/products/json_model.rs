@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
+use crate::s3::S3Image;
+
 #[derive(Deserialize, Serialize, Debug, Validate, Clone)]
 pub(super) struct ProductLocalization {
     en: String,
@@ -22,8 +24,7 @@ struct ProductOptionValue {
     #[validate(range(min = 0, message = "Price addition cannot be negative"))]
     price_addition: i64,
 
-    #[validate(url(message = "Invalid image URL format"))]
-    image_url: String,
+    image_url: Option<S3Image>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Validate)]
