@@ -1,4 +1,7 @@
+mod handler;
 mod s3;
 mod s3_error;
+mod s3_image;
 
-pub use s3::S3;
+pub use handler::routes;
+pub use s3_image::S3Image;

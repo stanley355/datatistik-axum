@@ -51,6 +51,7 @@ async fn main() {
     let app = Router::new()
         .nest("/user-search", user_search::routes())
         .nest("/products", products::routes())
+        .nest("/s3", s3::routes())
         .with_state(pool)
         .layer(cors)
         .layer(TraceLayer::new_for_http());

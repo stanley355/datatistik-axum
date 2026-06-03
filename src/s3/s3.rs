@@ -7,7 +7,7 @@ use aws_sdk_s3::{
 use super::s3_error::S3Error;
 use crate::envs::Envs;
 
-pub struct S3 {}
+pub(super) struct S3 {}
 impl S3 {
     fn get_credential() -> Credentials {
         let access_key = Envs::s3_access_key();
@@ -33,7 +33,7 @@ impl S3 {
         Client::new(&config)
     }
 
-    pub async fn upload_file(
+    pub(super) async fn upload_file(
         s3_key: &str,
         body: ByteStream,
         content_type: &str,

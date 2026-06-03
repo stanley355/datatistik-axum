@@ -5,13 +5,13 @@
 #[derive(Debug)]
 pub struct S3Error(String);
 impl S3Error {
-    pub fn new(value: impl Into<String>) -> Self {
-        S3Error(value.into())
-    }
+    // pub fn new(value: impl Into<String>) -> Self {
+    //     S3Error(value.into())
+    // }
 
-    pub fn add_message(self, message: impl Into<String>) -> Self {
-        S3Error(format!("{}: {}", message.into(), self.0))
-    }
+    // pub fn add_message(self, message: impl Into<String>) -> Self {
+    //     S3Error(format!("{}: {}", message.into(), self.0))
+    // }
 }
 
 impl<T: aws_sdk_s3::error::ProvideErrorMetadata> From<T> for S3Error {

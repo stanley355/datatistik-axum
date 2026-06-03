@@ -1,8 +1,6 @@
-use aws_sdk_s3::primitives::ByteStream;
 use axum::{
     Json, Router,
-    body::Body,
-    extract::{Multipart, Path, State},
+    extract::State,
     http::StatusCode,
     middleware::from_fn,
     routing::{get, post},
@@ -17,9 +15,8 @@ use super::{
 };
 use crate::{
     db::DbPool,
-    envs::Envs,
     middlewares::{AxumResponse, BetterAuth, DataPagination, JsonResponse, Pagination},
-    s3::S3,
+    s3::S3Image,
     schema,
 };
 
@@ -37,7 +34,7 @@ pub(super) struct CreateProductSchema {
     options: Option<Vec<ProductOption>>,
 
     #[validate(length(min = 1, message = "At least one image is required"))]
-    image_urls: Vec<String>,
+    image_urls: Vec<S3Image>,
 }
 
 impl CreateProductSchema {
@@ -120,76 +117,11 @@ async fn find_product(State(pool): State<DbPool>) -> AxumResponse<DataPagination
     JsonResponse::send(StatusCode::OK, Some(data_pagination), None)
 }
 
-async fn upload_product_images(
-    State(pool): State<DbPool>,
-    Path(id): Path<i32>,
-    mut multipart: Multipart,
-) -> AxumResponse<String> {
-    let endpoint = Envs::s3_endpoint();
-    let bucket = Envs::s3_bucket();
-    while let Ok(Some(field)) = multipart.next_field().await {
-        // 1. EXTRACT METADATA FOR VALIDATION
-        let content_type = field.content_type().unwrap_or("").to_string();
-        let file_name = field.file_name().unwrap_or("").to_string().to_lowercase();
-
-        // 2. RUN CONTENT-TYPE VALIDATION
-        // Valid MIME types: image/png, image/jpeg, image/webp
-        let is_valid_mime = matches!(
-            content_type.as_str(),
-            "image/png" | "image/jpeg" | "image/jpg" | "image/webp"
-        );
-
-        // 3. RUN FILE EXTENSION VALIDATION
-        let is_valid_ext = file_name.ends_with(".png")
-            || file_name.ends_with(".jpeg")
-            || file_name.ends_with(".jpg")
-            || file_name.ends_with(".webp");
-
-        // Reject if either validation fails
-        if !is_valid_mime && !is_valid_ext {
-            return JsonResponse::send(
-                StatusCode::BAD_REQUEST,
-                None,
-                Some("Invalid file format. Only PNG, JPEG, JPG, and WEBP are allowed.".to_string()),
-            );
-        }
-        let extension = if file_name.ends_with(".png") {
-            "png"
-        } else if file_name.ends_with(".webp") {
-            "webp"
-        } else {
-            "jpg"
-        };
-        // Generate a unique S3 Key to prevent file overwrites
-        let unique_id = uuid::Uuid::new_v4();
-        let s3_key = format!("{}.{}", unique_id, extension);
-        let bytes = field.bytes().await.unwrap();
-        let byte_stream = ByteStream::from(bytes);
-        let file_upload = S3::upload_file(&s3_key, byte_stream, &content_type).await;
-        match file_upload {
-            Ok(_) => {
-                let public_url = format!("{}/{}/{}", endpoint, bucket, s3_key);
-                println!("{}", public_url);
-            }
-            Err(err) => {
-                return JsonResponse::send(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    None,
-                    Some(err.to_string()),
-                );
-            }
-        }
-    }
-
-    JsonResponse::send(StatusCode::OK, None, None)
-}
-
 pub fn routes() -> Router<DbPool> {
     let public_routes = Router::new().route("/", get(find_product));
 
     let protected_routes = Router::new()
         .route("/", post(create_product))
-        .route("/{id}/images", post(upload_product_images))
         .layer(from_fn(BetterAuth::admin_middleware));
 
     public_routes.merge(protected_routes)
