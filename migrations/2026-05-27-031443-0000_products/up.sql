@@ -10,6 +10,7 @@ CREATE TABLE products (
     description JSONB NOT NULL DEFAULT '{}',
     options JSONB NOT NULL DEFAULT '[]',
     image_urls JSONB NOT NULL DEFAULT '[]',
+    image_cover_index INTEGER NOT NULL DEFAULT 0,
     source_url VARCHAR
 );
 

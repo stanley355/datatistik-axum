@@ -5,7 +5,7 @@ use crate::{
 };
 use axum::{Router, extract::Multipart, http::StatusCode, middleware::from_fn, routing::post};
 
-async fn upload_product_images(mut multipart: Multipart) -> AxumResponse<Vec<S3Image>> {
+async fn upload_images(mut multipart: Multipart) -> AxumResponse<Vec<S3Image>> {
     let mut uploaded_files: Vec<S3Image> = Vec::new();
     while let Ok(Some(field)) = multipart.next_field().await {
         // 1. EXTRACT METADATA FOR VALIDATION
@@ -61,6 +61,6 @@ async fn upload_product_images(mut multipart: Multipart) -> AxumResponse<Vec<S3I
 
 pub fn routes() -> Router<DbPool> {
     Router::new()
-        .route("/images", post(upload_product_images))
+        .route("/images", post(upload_images))
         .layer(from_fn(BetterAuth::admin_middleware))
 }

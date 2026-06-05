@@ -36,6 +36,7 @@ pub(super) struct CreateProductSchema {
     #[validate(length(min = 1, message = "At least one image is required"))]
     image_urls: Vec<S3Image>,
 
+    image_cover_index: i32,
     source_url: Option<String>
 }
 
@@ -57,6 +58,7 @@ impl CreateProductSchema {
             description: serde_json::to_value(self.description).unwrap_or(default_json_object),
             options: product_options,
             image_urls: serde_json::to_value(self.image_urls).unwrap_or(default_json_array),
+            image_cover_index: self.image_cover_index,
             source_url: self.source_url
         }
     }
@@ -71,6 +73,7 @@ pub(super) struct NewProduct {
     description: serde_json::Value,
     options: Option<serde_json::Value>,
     image_urls: serde_json::Value,
+    image_cover_index: i32,
     source_url: Option<String>
 }
 

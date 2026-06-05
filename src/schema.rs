@@ -30,6 +30,7 @@ diesel::table! {
         description -> Jsonb,
         options -> Jsonb,
         image_urls -> Jsonb,
+        image_cover_index -> Int4,
         source_url -> Nullable<Varchar>,
     }
 }

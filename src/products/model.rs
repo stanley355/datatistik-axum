@@ -21,6 +21,7 @@ pub(super) struct Product {
     description: serde_json::Value,
     options: serde_json::Value,
     image_urls: serde_json::Value,
+    image_cover_index: i32,
     source_url: Option<String>
 }
 
