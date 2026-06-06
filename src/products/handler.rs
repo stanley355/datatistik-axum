@@ -26,6 +26,7 @@ pub(super) struct CreateProductSchema {
     created_by_id: uuid::Uuid,
 
     price: i64,
+    is_available: bool,
 
     title: ProductLocalization,
     description: ProductLocalization,
@@ -54,6 +55,7 @@ impl CreateProductSchema {
             created_by_id: self.created_by_id,
             // Price should times 100 to handle floating numbers
             price: self.price * 100,
+            is_available: self.is_available,
             title: serde_json::to_value(self.title).unwrap_or(default_json_object.clone()),
             description: serde_json::to_value(self.description).unwrap_or(default_json_object),
             options: product_options,
@@ -69,6 +71,7 @@ impl CreateProductSchema {
 pub(super) struct NewProduct {
     created_by_id: uuid::Uuid,
     price: i64,
+    is_available: bool,
     title: serde_json::Value,
     description: serde_json::Value,
     options: Option<serde_json::Value>,
