@@ -1,6 +1,6 @@
 use axum::{
     Json, Router,
-    extract::State,
+    extract::{Path, State},
     http::StatusCode,
     middleware::from_fn,
     routing::{get, post},
@@ -38,7 +38,7 @@ pub(super) struct CreateProductSchema {
     image_urls: Vec<S3Image>,
 
     image_cover_number: i32,
-    source_url: Option<String>
+    source_url: Option<String>,
 }
 
 impl CreateProductSchema {
@@ -61,7 +61,7 @@ impl CreateProductSchema {
             options: product_options,
             image_urls: serde_json::to_value(self.image_urls).unwrap_or(default_json_array),
             image_cover_number: self.image_cover_number,
-            source_url: self.source_url
+            source_url: self.source_url,
         }
     }
 }
@@ -77,7 +77,7 @@ pub(super) struct NewProduct {
     options: Option<serde_json::Value>,
     image_urls: serde_json::Value,
     image_cover_number: i32,
-    source_url: Option<String>
+    source_url: Option<String>,
 }
 
 async fn create_product(
@@ -127,8 +127,26 @@ async fn find_product(State(pool): State<DbPool>) -> AxumResponse<DataPagination
     JsonResponse::send(StatusCode::OK, Some(data_pagination), None)
 }
 
+async fn find_product_by_id(
+    State(pool): State<DbPool>,
+    Path(id): Path<i32>,
+) -> AxumResponse<Product> {
+    match Product::find_by_id(&pool, &id).await {
+        Ok(data) => JsonResponse::send(StatusCode::OK, Some(data), None),
+        Err(err) => {
+            return JsonResponse::send(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                None,
+                Some(err.to_string()),
+            );
+        }
+    }
+}
+
 pub fn routes() -> Router<DbPool> {
-    let public_routes = Router::new().route("/", get(find_product));
+    let public_routes = Router::new()
+        .route("/", get(find_product))
+        .route("/{id}", get(find_product_by_id));
 
     let protected_routes = Router::new()
         .route("/", post(create_product))

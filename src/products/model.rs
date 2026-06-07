@@ -22,7 +22,7 @@ pub(super) struct Product {
     options: serde_json::Value,
     image_urls: serde_json::Value,
     image_cover_number: i32,
-    source_url: Option<String>
+    source_url: Option<String>,
 }
 
 impl DbPoolExt for Product {}
@@ -61,5 +61,18 @@ impl Product {
             }
         };
         schema::products::table.count().get_result(&mut conn).await
+    }
+
+    pub(super) async fn find_by_id(pool: &DbPool, id: &i32) -> QueryResult<Self> {
+        let mut conn = match pool.get().await {
+            Ok(connection) => connection,
+            Err(e) => {
+                return Err(Self::deadpool_to_diesel_error(e));
+            }
+        };
+        schema::products::table
+            .filter(schema::products::id.eq(id))
+            .get_result(&mut conn)
+            .await
     }
 }
