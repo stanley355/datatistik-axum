@@ -30,9 +30,8 @@ impl<T: Serialize> JsonResponse<T> {
             },
         };
 
-        let appropriate_status = [StatusCode::ACCEPTED, StatusCode::CREATED];
-
-        if !appropriate_status.contains(&status) {
+        let appropriate_status = [200, 201];
+        if !appropriate_status.contains(&status.as_u16()) {
             let error_message = match message {
                 Some(msg) => msg,
                 None => "Unknown error".to_string(),

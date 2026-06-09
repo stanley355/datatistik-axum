@@ -21,9 +21,6 @@ struct ProductOptionValue {
 
     #[validate(range(min = 0, message = "Price addition cannot be negative"))]
     price_addition: i64,
-
-    #[validate(url(message = "Invalid image URL format"))]
-    image_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Validate)]
