@@ -3,9 +3,9 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
     middleware::from_fn,
-    routing::{get, post},
+    routing::{get, post, put},
 };
-use diesel::prelude::Insertable;
+use diesel::prelude::{AsChangeset, Insertable};
 use serde::Deserialize;
 use validator::Validate;
 
@@ -143,6 +143,82 @@ async fn find_product_by_id(
     }
 }
 
+#[derive(Deserialize, Debug, Validate)]
+pub(super) struct UpdateProductSchema {
+    price: i64,
+    is_available: bool,
+
+    title: ProductLocalization,
+    description: ProductLocalization,
+
+    options: Option<Vec<ProductOption>>,
+
+    #[validate(length(min = 1, message = "At least one image is required"))]
+    image_urls: Vec<S3Image>,
+
+    image_cover_number: i32,
+    source_url: Option<String>,
+}
+
+impl UpdateProductSchema {
+    fn to_update_product(self) -> UpdateProduct {
+        let default_json_object = serde_json::Value::Object(serde_json::Map::new());
+        let default_json_array = serde_json::Value::Array(Vec::new());
+        let product_options = match self.options {
+            Some(options) => {
+                Some(serde_json::to_value(options).unwrap_or(default_json_array.clone()))
+            }
+            None => None,
+        };
+        UpdateProduct {
+            // Price should times 100 to handle floating numbers
+            price: self.price * 100,
+            is_available: self.is_available,
+            title: serde_json::to_value(self.title).unwrap_or(default_json_object.clone()),
+            description: serde_json::to_value(self.description).unwrap_or(default_json_object),
+            options: product_options,
+            image_urls: serde_json::to_value(self.image_urls).unwrap_or(default_json_array),
+            image_cover_number: self.image_cover_number,
+            source_url: self.source_url,
+        }
+    }
+}
+
+#[derive(Deserialize, AsChangeset, Debug)]
+#[diesel(table_name = schema::products)]
+pub(super) struct UpdateProduct {
+    price: i64,
+    is_available: bool,
+    title: serde_json::Value,
+    description: serde_json::Value,
+    options: Option<serde_json::Value>,
+    image_urls: serde_json::Value,
+    image_cover_number: i32,
+    source_url: Option<String>,
+}
+
+async fn update_product(
+    State(pool): State<DbPool>,
+    Path(id): Path<i32>,
+    Json(payload): Json<UpdateProductSchema>,
+) -> AxumResponse<Product> {
+    if let Err(errors) = payload.validate() {
+        let error_message = format!("Validation failed: {:?}", errors.0);
+        return JsonResponse::send(StatusCode::BAD_REQUEST, None, Some(error_message));
+    }
+
+    let update_data = payload.to_update_product();
+
+    match Product::update(&pool, &id, &update_data).await {
+        Ok(product) => JsonResponse::send(StatusCode::OK, Some(product), None),
+        Err(err) => JsonResponse::send(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            None,
+            Some(err.to_string()),
+        ),
+    }
+}
+
 pub fn routes() -> Router<DbPool> {
     let public_routes = Router::new()
         .route("/", get(find_product))
@@ -150,7 +226,10 @@ pub fn routes() -> Router<DbPool> {
 
     let protected_routes = Router::new()
         .route("/", post(create_product))
+        .route("/{id}", put(update_product)) // Added PUT update route
         .layer(from_fn(BetterAuth::admin_middleware));
 
     public_routes.merge(protected_routes)
 }
+
+impl Product {}

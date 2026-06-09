@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::{
     db::{DbPool, DbPoolExt},
-    products::handler::NewProduct,
+    products::handler::{NewProduct, UpdateProduct},
     schema,
 };
 
@@ -73,6 +73,24 @@ impl Product {
         schema::products::table
             .filter(schema::products::id.eq(id))
             .get_result(&mut conn)
+            .await
+    }
+
+    pub async fn update(
+        pool: &DbPool,
+        product_id: &i32,
+        changes: &UpdateProduct,
+    ) -> QueryResult<Self> {
+        let mut conn = match pool.get().await {
+            Ok(connection) => connection,
+            Err(e) => {
+                return Err(Self::deadpool_to_diesel_error(e));
+            }
+        };
+
+        diesel::update(schema::products::table.find(product_id))
+            .set(changes)
+            .get_result::<Product>(&mut conn)
             .await
     }
 }
