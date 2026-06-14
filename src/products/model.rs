@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::{
     db::{DbPool, DbPoolExt},
-    products::handler::{NewProduct, UpdateProduct},
+    products::handler::{FindProductSchema, NewProduct, UpdateProduct},
     schema,
 };
 
@@ -40,27 +40,40 @@ impl Product {
             .await
     }
 
-    pub(super) async fn find(pool: &DbPool) -> QueryResult<Vec<Self>> {
+    pub(super) async fn find(pool: &DbPool, query: &FindProductSchema) -> QueryResult<Vec<Self>> {
         let mut conn = match pool.get().await {
             Ok(connection) => connection,
             Err(e) => {
                 return Err(Self::deadpool_to_diesel_error(e));
             }
         };
-        schema::products::table
+
+        let mut sql_query = schema::products::table.into_boxed();
+
+        if let Some(is_available) = query.is_available {
+            sql_query = sql_query.filter(schema::products::is_available.eq(is_available))
+        }
+
+        sql_query
             .order_by(schema::products::created_at.desc())
             .get_results(&mut conn)
             .await
     }
 
-    pub(super) async fn count(pool: &DbPool) -> QueryResult<i64> {
+    pub(super) async fn count(pool: &DbPool, query: &FindProductSchema) -> QueryResult<i64> {
         let mut conn = match pool.get().await {
             Ok(connection) => connection,
             Err(e) => {
                 return Err(Self::deadpool_to_diesel_error(e));
             }
         };
-        schema::products::table.count().get_result(&mut conn).await
+
+        let mut sql_query = schema::products::table.into_boxed();
+
+        if let Some(is_available) = query.is_available {
+            sql_query = sql_query.filter(schema::products::is_available.eq(is_available))
+        }
+        sql_query.count().get_result(&mut conn).await
     }
 
     pub(super) async fn find_by_id(pool: &DbPool, id: &i32) -> QueryResult<Self> {

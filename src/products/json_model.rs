@@ -37,3 +37,25 @@ pub(super) struct ProductOption {
     #[validate(nested, length(min = 1, message = "At least one value is required"))]
     values: Vec<ProductOptionValue>,
 }
+
+impl ProductOption {
+    pub(super) fn format_values_price(self) -> Self {
+        let new_values: Vec<ProductOptionValue> = self
+            .values
+            .iter()
+            .map(|val| ProductOptionValue {
+                cn: val.cn.clone(),
+                id: val.id.clone(),
+                en: val.en.clone(),
+                price_addition: val.price_addition * 100,
+            })
+            .collect();
+
+        ProductOption {
+            cn: self.cn,
+            id: self.id,
+            en: self.en,
+            values: new_values,
+        }
+    }
+}
