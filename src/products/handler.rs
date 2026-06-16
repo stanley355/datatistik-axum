@@ -1,6 +1,6 @@
 use axum::{
     Json, Router,
-    extract::{Path, State},
+    extract::{Path, Query, State},
     http::StatusCode,
     middleware::from_fn,
     routing::{get, post, put},
@@ -24,19 +24,14 @@ use crate::{
 pub(super) struct CreateProductSchema {
     #[allow(dead_code)]
     created_by_id: uuid::Uuid,
-
     price: i64,
     is_available: bool,
-
     title: ProductLocalization,
     description: ProductLocalization,
-
     #[allow(dead_code)]
     options: Option<Vec<ProductOption>>,
-
     #[validate(length(min = 1, message = "At least one image is required"))]
     image_urls: Vec<S3Image>,
-
     image_cover_number: i32,
     source_url: Option<String>,
 }
@@ -47,7 +42,11 @@ impl CreateProductSchema {
         let default_json_array = serde_json::Value::Array(Vec::new());
         let product_options = match self.options {
             Some(options) => {
-                Some(serde_json::to_value(options).unwrap_or(default_json_array.clone()))
+                let formatted_options: Vec<ProductOption> = options
+                    .into_iter()
+                    .map(|opt| opt.format_values_price())
+                    .collect();
+                Some(serde_json::to_value(formatted_options).unwrap_or(default_json_array.clone()))
             }
             None => None,
         };
@@ -99,8 +98,15 @@ async fn create_product(
     }
 }
 
-async fn find_product(State(pool): State<DbPool>) -> AxumResponse<DataPagination<Vec<Product>>> {
-    let products = match Product::find(&pool).await {
+#[derive(Deserialize, Debug)]
+pub(super) struct FindProductSchema {
+    pub(super) is_available: Option<bool>,
+}
+async fn find_product(
+    State(pool): State<DbPool>,
+    Query(query): Query<FindProductSchema>,
+) -> AxumResponse<DataPagination<Vec<Product>>> {
+    let products = match Product::find(&pool, &query).await {
         Ok(data) => data,
         Err(err) => {
             return JsonResponse::send(
@@ -111,7 +117,7 @@ async fn find_product(State(pool): State<DbPool>) -> AxumResponse<DataPagination
         }
     };
 
-    let product_count = match Product::count(&pool).await {
+    let product_count = match Product::count(&pool, &query).await {
         Ok(data) => data,
         Err(err) => {
             return JsonResponse::send(
@@ -166,7 +172,11 @@ impl UpdateProductSchema {
         let default_json_array = serde_json::Value::Array(Vec::new());
         let product_options = match self.options {
             Some(options) => {
-                Some(serde_json::to_value(options).unwrap_or(default_json_array.clone()))
+                let formatted_options: Vec<ProductOption> = options
+                    .into_iter()
+                    .map(|opt| opt.format_values_price())
+                    .collect();
+                Some(serde_json::to_value(formatted_options).unwrap_or(default_json_array.clone()))
             }
             None => None,
         };
