@@ -241,5 +241,3 @@ pub fn routes() -> Router<DbPool> {
 
     public_routes.merge(protected_routes)
 }
-
-impl Product {}

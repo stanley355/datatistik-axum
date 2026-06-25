@@ -23,8 +23,8 @@ diesel::table! {
         id -> Uuid,
         created_at -> Timestamp,
         updated_at -> Timestamp,
-        user_id -> Nullable<Uuid>,
-        product_id -> Nullable<Int4>,
+        user_id -> Uuid,
+        product_id -> Int4,
         amount -> Int4,
     }
 }
