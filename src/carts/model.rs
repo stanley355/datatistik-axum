@@ -122,4 +122,17 @@ impl Cart {
             .get_result::<Self>(&mut conn)
             .await
     }
+
+    pub(super) async fn remove(pool: &DbPool, cart_id: &uuid::Uuid) -> QueryResult<Self> {
+        let mut conn = match pool.get().await {
+            Ok(connection) => connection,
+            Err(e) => {
+                return Err(Self::deadpool_to_diesel_error(e));
+            }
+        };
+
+        diesel::delete(schema::carts::table.find(cart_id))
+            .get_result::<Self>(&mut conn)
+            .await
+    }
 }

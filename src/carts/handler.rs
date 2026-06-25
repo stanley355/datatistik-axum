@@ -12,7 +12,7 @@ use axum::{
     extract::{Path, State},
     http::StatusCode,
     middleware::from_fn,
-    routing::{get, post, put},
+    routing::{delete, get, post, put},
 };
 use diesel::prelude::{AsChangeset, Insertable};
 use serde::Deserialize;
@@ -137,10 +137,36 @@ async fn find_cart_by_user(
     JsonResponse::send(StatusCode::OK, Some(data_pagination), None)
 }
 
+async fn remove_cart(
+    State(pool): State<DbPool>,
+    Path(cart_id): Path<String>,
+) -> AxumResponse<Cart> {
+    let cart_id = match uuid::Uuid::from_str(&cart_id) {
+        Ok(id) => id,
+        Err(err) => {
+            return JsonResponse::send(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                None,
+                Some(err.to_string()),
+            );
+        }
+    };
+
+    match Cart::remove(&pool, &cart_id).await {
+        Ok(product) => JsonResponse::send(StatusCode::OK, Some(product), None),
+        Err(err) => JsonResponse::send(
+            StatusCode::INTERNAL_SERVER_ERROR,
+            None,
+            Some(err.to_string()),
+        ),
+    }
+}
+
 pub fn routes() -> Router<DbPool> {
     Router::new()
         .route("/", post(create_cart))
         .route("/user/{user_id}", get(find_cart_by_user))
         .route("/{cart_id}", put(update_cart))
+        .route("/{cart_id}", delete(remove_cart))
         .layer(from_fn(BetterAuth::session_middleware))
 }

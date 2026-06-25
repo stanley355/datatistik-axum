@@ -56,7 +56,7 @@ impl<T: Serialize> DataPagination<T> {
     }
 }
 
-pub const DEFAULT_PER_PAGE: u32 = 10;
+const DEFAULT_PER_PAGE: u32 = 10;
 
 #[derive(Debug, Serialize)]
 pub struct Pagination {
