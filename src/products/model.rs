@@ -10,7 +10,7 @@ use crate::{
 
 #[derive(Serialize, Queryable)]
 #[diesel(table_name = schema::products)]
-pub(super) struct Product {
+pub struct Product {
     pub id: i32,
     pub created_at: chrono::NaiveDateTime,
     pub updated_at: chrono::NaiveDateTime,

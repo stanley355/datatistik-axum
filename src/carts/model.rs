@@ -5,6 +5,7 @@ use serde::Serialize;
 use crate::{
     carts::handler::CreateCartSchema,
     db::{DbPool, DbPoolExt},
+    products::Product,
     schema,
 };
 
@@ -66,6 +67,40 @@ impl Cart {
                     .eq(user_id)
                     .and(schema::carts::product_id.eq(product_id)),
             )
+            .get_result(&mut conn)
+            .await
+    }
+
+    pub(super) async fn find_by_user_join_product(
+        pool: &DbPool,
+        user_id: &uuid::Uuid,
+    ) -> QueryResult<Vec<(Self, Product)>> {
+        let mut conn = match pool.get().await {
+            Ok(connection) => connection,
+            Err(e) => {
+                return Err(Self::deadpool_to_diesel_error(e));
+            }
+        };
+
+        schema::carts::table
+            .filter(schema::carts::user_id.eq(&user_id))
+            .inner_join(schema::products::table)
+            .select((schema::carts::all_columns, schema::products::all_columns))
+            .get_results(&mut conn)
+            .await
+    }
+
+    pub(super) async fn count(pool: &DbPool, user_id: &uuid::Uuid) -> QueryResult<i64> {
+        let mut conn = match pool.get().await {
+            Ok(connection) => connection,
+            Err(e) => {
+                return Err(Self::deadpool_to_diesel_error(e));
+            }
+        };
+
+        schema::carts::table
+            .filter(schema::carts::user_id.eq(&user_id))
+            .count()
             .get_result(&mut conn)
             .await
     }

@@ -3,3 +3,4 @@ mod json_model;
 mod model;
 
 pub use handler::routes;
+pub use model::Product;

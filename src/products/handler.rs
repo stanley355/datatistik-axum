@@ -196,7 +196,7 @@ impl UpdateProductSchema {
 
 #[derive(Deserialize, AsChangeset, Debug)]
 #[diesel(table_name = schema::products)]
-pub(super) struct UpdateProduct {
+pub struct UpdateProduct {
     price: i64,
     is_available: bool,
     title: serde_json::Value,

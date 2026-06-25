@@ -3,7 +3,8 @@ use std::str::FromStr;
 use super::model::Cart;
 use crate::{
     db::DbPool,
-    middlewares::{AxumResponse, BetterAuth, JsonResponse},
+    middlewares::{AxumResponse, BetterAuth, DataPagination, JsonResponse, Pagination},
+    products::Product,
     schema,
 };
 use axum::{
@@ -94,9 +95,52 @@ async fn update_cart(
     }
 }
 
+async fn find_cart_by_user(
+    State(pool): State<DbPool>,
+    Path(user_id): Path<String>,
+) -> AxumResponse<DataPagination<Vec<(Cart, Product)>>> {
+    let user_uuid = match uuid::Uuid::from_str(&user_id) {
+        Ok(id) => id,
+        Err(err) => {
+            return JsonResponse::send(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                None,
+                Some(err.to_string()),
+            );
+        }
+    };
+
+    let carts = match Cart::find_by_user_join_product(&pool, &user_uuid).await {
+        Ok(data) => data,
+        Err(err) => {
+            return JsonResponse::send(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                None,
+                Some(err.to_string()),
+            );
+        }
+    };
+
+    let cart_count = match Cart::count(&pool, &user_uuid).await {
+        Ok(data) => data,
+        Err(err) => {
+            return JsonResponse::send(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                None,
+                Some(err.to_string()),
+            );
+        }
+    };
+
+    let pagination = Pagination::new(None, None, cart_count as u32);
+    let data_pagination = DataPagination::new(Some(carts), pagination);
+    JsonResponse::send(StatusCode::OK, Some(data_pagination), None)
+}
+
 pub fn routes() -> Router<DbPool> {
     Router::new()
         .route("/", post(create_cart))
-        .route("/{id}", put(update_cart))
+        .route("/user/{user_id}", get(find_cart_by_user))
+        .route("/{cart_id}", put(update_cart))
         .layer(from_fn(BetterAuth::session_middleware))
 }
