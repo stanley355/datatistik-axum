@@ -14,9 +14,9 @@ pub(super) struct Cart {
     pub id: uuid::Uuid,
     created_at: chrono::NaiveDateTime,
     updated_at: chrono::NaiveDateTime,
-    user_id: uuid::Uuid,
+    pub user_id: uuid::Uuid,
     product_id: i32,
-    pub amount: i32,
+    pub(super) amount: i32,
 }
 
 impl DbPoolExt for Cart {}
@@ -30,6 +30,20 @@ impl Cart {
         };
         diesel::insert_into(schema::carts::table)
             .values(payload)
+            .get_result(&mut conn)
+            .await
+    }
+
+    pub(super) async fn find_by_cart_id(pool: &DbPool, cart_id: &uuid::Uuid) -> QueryResult<Self> {
+        let mut conn = match pool.get().await {
+            Ok(connection) => connection,
+            Err(e) => {
+                return Err(Self::deadpool_to_diesel_error(e));
+            }
+        };
+
+        schema::carts::table
+            .find(&cart_id)
             .get_result(&mut conn)
             .await
     }
