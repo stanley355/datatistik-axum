@@ -72,4 +72,30 @@ impl BetterAuth {
         );
         Err(response)
     }
+
+    pub async fn session_middleware(
+        req: Request,
+        next: Next,
+    ) -> Result<Response, AxumResponse<String>> {
+        let header_cookie = req.headers().get(COOKIE);
+        if let Some(cookie) = header_cookie.and_then(|h| h.to_str().ok()) {
+            match Self::check_session(cookie).await {
+                Ok(_) => return Ok(next.run(req).await),
+                Err(err) => {
+                    let status = match err.status() {
+                        Some(stat) => stat,
+                        None => StatusCode::INTERNAL_SERVER_ERROR,
+                    };
+                    let response = JsonResponse::send(status, None, Some(err.to_string()));
+                    return Err(response);
+                }
+            }
+        }
+        let response = JsonResponse::send(
+            StatusCode::UNAUTHORIZED,
+            None,
+            Some("Unauthorized".to_string()),
+        );
+        Err(response)
+    }
 }
