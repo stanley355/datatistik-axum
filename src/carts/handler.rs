@@ -1,5 +1,4 @@
-use std::str::FromStr;
-
+use super::json_model::CartProductOption;
 use super::model::Cart;
 use crate::{
     db::DbPool,
@@ -16,12 +15,34 @@ use axum::{
 };
 use diesel::prelude::{AsChangeset, Insertable};
 use serde::Deserialize;
+use std::str::FromStr;
 
-#[derive(Deserialize, Insertable, Debug)]
-#[diesel(table_name = schema::carts)]
+#[derive(Deserialize, Debug)]
 pub(super) struct CreateCartSchema {
     user_id: uuid::Uuid,
     product_id: i32,
+    options: Option<Vec<CartProductOption>>,
+    amount: i32,
+}
+
+impl CreateCartSchema {
+    fn to_new_cart(self) -> NewCart {
+        let default_json_array = serde_json::Value::Array(Vec::new());
+        NewCart {
+            user_id: self.user_id,
+            product_id: self.product_id,
+            options: serde_json::to_value(self.options).unwrap_or(default_json_array),
+            amount: self.amount,
+        }
+    }
+}
+
+#[derive(Deserialize, Insertable, Debug)]
+#[diesel(table_name = schema::carts)]
+pub(super) struct NewCart {
+    user_id: uuid::Uuid,
+    product_id: i32,
+    options: serde_json::Value,
     amount: i32,
 }
 
@@ -43,7 +64,7 @@ async fn create_cart(
         };
     }
 
-    match Cart::create(&pool, &payload).await {
+    match Cart::create(&pool, &payload.to_new_cart()).await {
         Ok(product) => JsonResponse::send(StatusCode::CREATED, Some(product), None),
         Err(err) => JsonResponse::send(
             StatusCode::INTERNAL_SERVER_ERROR,

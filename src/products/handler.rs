@@ -22,13 +22,11 @@ use crate::{
 
 #[derive(Deserialize, Debug, Validate)]
 pub(super) struct CreateProductSchema {
-    #[allow(dead_code)]
     created_by_id: uuid::Uuid,
     price: i64,
     is_available: bool,
     title: ProductLocalization,
     description: ProductLocalization,
-    #[allow(dead_code)]
     options: Option<Vec<ProductOption>>,
     #[validate(length(min = 1, message = "At least one image is required"))]
     image_urls: Vec<S3Image>,

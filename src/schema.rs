@@ -25,6 +25,7 @@ diesel::table! {
         updated_at -> Timestamp,
         user_id -> Uuid,
         product_id -> Int4,
+        options -> Jsonb,
         amount -> Int4,
     }
 }

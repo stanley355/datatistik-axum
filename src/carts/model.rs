@@ -2,8 +2,8 @@ use diesel::{BoolExpressionMethods, ExpressionMethods, QueryDsl, QueryResult, Qu
 use diesel_async::RunQueryDsl;
 use serde::Serialize;
 
+use super::handler::NewCart;
 use crate::{
-    carts::handler::CreateCartSchema,
     db::{DbPool, DbPoolExt},
     products::Product,
     schema,
@@ -17,12 +17,13 @@ pub(super) struct Cart {
     updated_at: chrono::NaiveDateTime,
     pub user_id: uuid::Uuid,
     product_id: i32,
+    options: serde_json::Value,
     pub(super) amount: i32,
 }
 
 impl DbPoolExt for Cart {}
 impl Cart {
-    pub(super) async fn create(pool: &DbPool, payload: &CreateCartSchema) -> QueryResult<Self> {
+    pub(super) async fn create(pool: &DbPool, payload: &NewCart) -> QueryResult<Self> {
         let mut conn = match pool.get().await {
             Ok(connection) => connection,
             Err(e) => {

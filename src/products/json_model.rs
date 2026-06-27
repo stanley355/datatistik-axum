@@ -9,7 +9,7 @@ pub(super) struct ProductLocalization {
 }
 
 #[derive(Debug, Serialize, Deserialize, Validate)]
-struct ProductOptionValue {
+pub struct ProductOptionValue {
     #[validate(length(min = 1, message = "id_values cannot be empty"))]
     id: String,
 
