@@ -42,8 +42,8 @@ impl CreateCartSchema {
 pub(super) struct NewCart {
     user_id: uuid::Uuid,
     product_id: i32,
-    options: serde_json::Value,
-    amount: i32,
+    pub(super) options: serde_json::Value,
+    pub(super) amount: i32,
 }
 
 async fn create_cart(
@@ -53,8 +53,7 @@ async fn create_cart(
     if let Ok(prev_cart) =
         Cart::find_by_user_and_product(&pool, &payload.user_id, &payload.product_id).await
     {
-        let new_amount = &prev_cart.amount + &payload.amount;
-        return match Cart::update_amount_by_cart_id(&pool, &prev_cart.id, &new_amount).await {
+        return match Cart::update_created_cart(&pool, &prev_cart.id, &payload.to_new_cart()).await {
             Ok(product) => JsonResponse::send(StatusCode::CREATED, Some(product), None),
             Err(err) => JsonResponse::send(
                 StatusCode::INTERNAL_SERVER_ERROR,

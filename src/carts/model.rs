@@ -106,6 +106,27 @@ impl Cart {
             .await
     }
 
+    pub(super) async fn update_created_cart(
+        pool: &DbPool,
+        cart_id: &uuid::Uuid,
+        payload: &NewCart,
+    ) -> QueryResult<Self> {
+        let mut conn = match pool.get().await {
+            Ok(connection) => connection,
+            Err(e) => {
+                return Err(Self::deadpool_to_diesel_error(e));
+            }
+        };
+
+        diesel::update(schema::carts::table.find(cart_id))
+            .set((
+                schema::carts::options.eq(&payload.options),
+                schema::carts::amount.eq(&payload.amount),
+            ))
+            .get_result::<Self>(&mut conn)
+            .await
+    }
+
     pub(super) async fn update_amount_by_cart_id(
         pool: &DbPool,
         cart_id: &uuid::Uuid,
